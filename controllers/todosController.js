@@ -63,6 +63,21 @@ const update = (req, res) => {
 };
 
 const destroy = (req, res) => {
+    const id = req.params.id;
+
+    db.todos.findByPk(id)
+        .then(task => {
+            if (!task) {
+                return res.status(404).json({message: "task not available"});
+            }
+            db.todos.destroy({where: {id: id}})
+                .then(() => {
+                    return res.status(200).json({message: "task deleted successfully!"})
+                })
+        })
+        .catch((err) => {
+            return res.status(500).json({message: "there was an error", error: err})
+        });
 
 };
 
