@@ -1,24 +1,32 @@
 'use strict';
 
 module.exports = {
-  up: (queryInterface, DataTypes) => {
+  up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('todos',{
       id:{
-        type:DataTypes.INTEGER,
+        type:Sequelize.INTEGER,
         primaryKey:true,
         autoIncrement:true,
         allowNull:false
       },
       title:{
-        type:DataTypes.STRING,
+        type:Sequelize.STRING,
         allowNull:false
       },
       completed:{
-        type:DataTypes.BOOLEAN,
+        type:Sequelize.BOOLEAN,
         allowNull:false
       },
-      createdAt:DataTypes.DATE,
-      updatedAt:DataTypes.DATE,
+      user_id :{
+        type:Sequelize.INTEGER,
+        allowNull:false,
+        references:{
+          model:"users",
+          key:"id"
+        }
+      },
+      createdAt:Sequelize.DATE,
+      updatedAt:Sequelize.DATE,
 
     })
   },
