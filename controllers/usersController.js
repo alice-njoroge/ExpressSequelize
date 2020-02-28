@@ -19,8 +19,6 @@ const create = (req, res) => {
     const password = req.body.password;
     let hash = bcrypt.hashSync(password, 10);
 
-    console.log(hash);
-
     db.users.create({name: name, email: email, password: hash})
         .then(user => {
             return res.status(201).json({name: user.name, email: user.email, createdAt: user.createdAt});
