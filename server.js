@@ -7,7 +7,9 @@ const port = process.env.PORT || 3031;
 
 app.use(express.urlencoded({extended:true}));
 app.use(express.json());
+
 app.use("/todos",todosRoutes);
+app.use("/users",todosRoutes);
 
 
 app.listen(port, ()=>{
