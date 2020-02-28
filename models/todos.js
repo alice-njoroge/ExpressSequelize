@@ -4,5 +4,8 @@ module.exports = (sequelize, DataTypes) =>{
         completed:DataTypes.BOOLEAN,
         user_id:DataTypes.INTEGER
     });
+    todo.associate = (models)=>{
+      todo.belongsTo(models.Users, {foreignKey:user_id, as: "user"})
+    };
     return todo;
 };

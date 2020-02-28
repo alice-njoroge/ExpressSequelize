@@ -4,7 +4,11 @@ module.exports = (Sequelize, DataTypes) => {
         email: DataTypes.STRING,
         password: DataTypes.STRING,
         token: DataTypes.STRING
+
     });
+    User.associate = (models) => {
+        User.hasMany(models.todos, {foreignKey: "user_id", as: "tasks"});
+    };
     return User;
 
 };
