@@ -1,6 +1,7 @@
 const db = require("../models");
 const bcrypt = require('bcrypt');
 const Joi = require('joi');
+const passwordComplexity = require('joi-password-complexity');
 
 const errHandler = (err, res) => {
     res.status(500).json({message: "there is an error", error: err})
@@ -15,10 +16,27 @@ const index = (req, res) => {
     })
 };
 const create = (req, res) => {
-    const name = req.body.name;
-    const email = req.body.email;
-    const password = req.body.password;
-    let hash = bcrypt.hashSync(password, 10);
+    const body = req.body;
+    const name = body.name;
+    const email = body.email;
+    const password = body.password;
+
+    const schema = Joi.object().keys({
+        name: Joi.string().required(),
+        email: Joi.string().email().required(),
+        password: Joi.string().required(),
+    });
+   const newPass= passwordComplexity().validate(password);
+   if(newPass.error){
+       return  res.status(400).json({message:"Bad request", error:newPass.error})
+   }
+    const hash = bcrypt.hashSync(password, 10);
+
+    const result = Joi.validate(body, schema);
+    const valid = result.error == null;
+    if (!valid) {
+        return res.status(400).json({message: "Bad request", error:result.error})
+    }
 
     db.users.create({name: name, email: email, password: hash})
         .then(user => {
@@ -32,8 +50,8 @@ const show = (req, res) => {
     const id = req.params.id;
     db.users.findByPk(id, {attributes: ["name", "email", "createdAt"]})
         .then(user => {
-            if(!user){
-                return res.status(404).json({message:"not found"});
+            if (!user) {
+                return res.status(404).json({message: "not found"});
             }
             return res.json(user);
         })
@@ -44,7 +62,6 @@ const show = (req, res) => {
 };
 const update = (req, res) => {
     const body = req.body;
-    console.log(body);
 
     const schema = Joi.object().keys({
         name: Joi.string().required(),
@@ -66,8 +83,8 @@ const update = (req, res) => {
         .then(() => {
             db.users.findByPk(req.params.id, {attributes: ["name", "email", "createdAt"]})
                 .then(user => {
-                    if(!user){
-                        return res.status(404).json({message:"not found"});
+                    if (!user) {
+                        return res.status(404).json({message: "not found"});
                     }
                     return res.json(user);
                 })
