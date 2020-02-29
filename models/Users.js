@@ -9,7 +9,7 @@ module.exports = (Sequelize, DataTypes) => {
 
         });
     User.associate = (models) => {
-        User.hasMany(models.todos, {foreignKey: "user_id", as: "tasks"});
+        User.hasMany(models.todos, {foreignKey: "user_id", as: "tasks", onDelete:'cascade'}, );
     };
     return User;
 
