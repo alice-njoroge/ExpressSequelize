@@ -9,7 +9,7 @@ const errHandler = (err, res) => {
 
 const index = async (req, res) => {
     try {
-        const users = await db.users.findAll({attributes: ["name", "email", "createdAt"]});
+        const users = await db.users.findAll({attributes: ["name", "email", "createdAt"], include:"tasks"});
         return res.json(users);
     } catch (e) {
         return errHandler(e, res);
