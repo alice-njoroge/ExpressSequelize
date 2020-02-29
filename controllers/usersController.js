@@ -1,5 +1,6 @@
 const db = require("../models");
 const bcrypt = require('bcrypt');
+const Joi = require('joi');
 
 const errHandler = (err, res) => {
     res.status(500).json({message: "there is an error", error: err})
@@ -28,9 +29,12 @@ const create = (req, res) => {
 
 };
 const show = (req, res) => {
-   const id = req.params.id;
-    db.users.findByPk(id,{attributes: ["name", "email", "createdAt"] })
+    const id = req.params.id;
+    db.users.findByPk(id, {attributes: ["name", "email", "createdAt"]})
         .then(user => {
+            if(!user){
+                return res.status(404).json({message:"not found"});
+            }
             return res.json(user);
         })
         .catch(err => {
@@ -38,10 +42,43 @@ const show = (req, res) => {
         });
 
 };
+const update = (req, res) => {
+    const body = req.body;
+    console.log(body);
 
+    const schema = Joi.object().keys({
+        name: Joi.string().required(),
+        email: Joi.string().email().required()
+    });
+    const result = Joi.validate(body, schema);
+    const {value, error} = result;
+    const valid = error == null;
+
+    if (!valid) {
+        return res.status(400).json({message: "Bad request", error: error})
+    }
+    db.users.update(body,
+        {
+            where: {
+                id: req.params.id
+            }
+        })
+        .then(() => {
+            db.users.findByPk(req.params.id, {attributes: ["name", "email", "createdAt"]})
+                .then(user => {
+                    if(!user){
+                        return res.status(404).json({message:"not found"});
+                    }
+                    return res.json(user);
+                })
+        })
+        .catch(err => errHandler(err, res))
+
+};
 
 module.exports = {
     index: index,
     create: create,
-    show:show
+    show: show,
+    update: update
 };
