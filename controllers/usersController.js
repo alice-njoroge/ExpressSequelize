@@ -7,15 +7,17 @@ const errHandler = (err, res) => {
     res.status(500).json({message: "there is an error", error: err})
 };
 
-const index = (req, res) => {
-    db.users.findAll({attributes: ["name", "email", "createdAt"]})
-        .then(users => {
-            res.json(users);
-        }).catch(err => {
-        return errHandler(err, res);
-    })
+const index = async (req, res) => {
+    try {
+        const users = await db.users.findAll({attributes: ["name", "email", "createdAt"]});
+        return res.json(users);
+    } catch (e) {
+        return errHandler(e, res);
+    }
+
 };
-const create = (req, res) => {
+
+const create = async (req, res) => {
     const body = req.body;
     const name = body.name;
     const email = body.email;
@@ -26,24 +28,35 @@ const create = (req, res) => {
         email: Joi.string().email().required(),
         password: Joi.string().required(),
     });
-   const newPass= passwordComplexity().validate(password);
-   if(newPass.error){
-       return  res.status(400).json({message:"Bad request", error:newPass.error})
-   }
+    const newPass = passwordComplexity().validate(password);
+    if (newPass.error) {
+        return res.status(400).json({message: "Bad request", error: newPass.error})
+    }
     const hash = bcrypt.hashSync(password, 10);
 
     const result = Joi.validate(body, schema);
     const valid = result.error == null;
     if (!valid) {
-        return res.status(400).json({message: "Bad request", error:result.error})
+        return res.status(400).json({message: "Bad request", error: result.error})
     }
-
-    db.users.create({name: name, email: email, password: hash})
-        .then(user => {
-            return res.status(201).json({name: user.name, email: user.email, createdAt: user.createdAt});
-        }).catch(err => {
+    db.users.findOne({
+        where: {
+            email: email
+        }
+    }).then(mail => {
+        if (mail) {
+            return res.status(400).json({message: "that Email exists already"})
+        }
+    }).catch(err => {
         return errHandler(err, res);
     });
+    try {
+        const user = await db.users.create({name: name, email: email, password: hash});
+        return res.status(201).json({name: user.name, email: user.email, createdAt: user.createdAt});
+    } catch (e) {
+        return errHandler(e, res);
+    }
+
 
 };
 const show = (req, res) => {
