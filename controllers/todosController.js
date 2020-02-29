@@ -8,7 +8,8 @@ const index = (req, res) => {
 
 const create = (req, res) => {
     const title = req.body.title;
-    db.todos.create({title: title, completed: false})
+    const user_id = req.body.user_id;
+    db.todos.create({title: title, completed: false, user_id:user_id })
         .then((todo) => {
             return res.status(201).json(todo);
         })
