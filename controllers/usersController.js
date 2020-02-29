@@ -39,17 +39,20 @@ const create = async (req, res) => {
     if (!valid) {
         return res.status(400).json({message: "Bad request", error: result.error})
     }
-    db.users.findOne({
-        where: {
-            email: email
-        }
-    }).then(mail => {
-        if (mail) {
+    try{
+        const mailExists = await db.users.findOne({
+            where: {
+                email: email
+            }
+        });
+        if (mailExists) {
             return res.status(400).json({message: "that Email exists already"})
         }
-    }).catch(err => {
-        return errHandler(err, res);
-    });
+    } catch (e) {
+        return errHandler(e,res);
+    }
+
+
     try {
         const user = await db.users.create({name: name, email: email, password: hash});
         return res.status(201).json({name: user.name, email: user.email, createdAt: user.createdAt});
