@@ -1,7 +1,7 @@
 const db = require("../models");
 
 const index = (req, res) => {
-    db.todos.findAll().then((todos) => {
+    db.todos.findAll({include:"user"}).then((todos) => {
         return res.json(todos);
     });
 };
