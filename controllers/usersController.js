@@ -39,7 +39,7 @@ const create = async (req, res) => {
     if (!valid) {
         return res.status(400).json({message: "Bad request", error: result.error})
     }
-    try{
+    try {
         const mailExists = await db.users.findOne({
             where: {
                 email: email
@@ -49,7 +49,7 @@ const create = async (req, res) => {
             return res.status(400).json({message: "that Email exists already"})
         }
     } catch (e) {
-        return errHandler(e,res);
+        return errHandler(e, res);
     }
 
 
@@ -62,21 +62,19 @@ const create = async (req, res) => {
 
 
 };
-const show = (req, res) => {
+const show = async (req, res) => {
     const id = req.params.id;
-    db.users.findByPk(id, {attributes: ["name", "email", "createdAt"]})
-        .then(user => {
-            if (!user) {
-                return res.status(404).json({message: "not found"});
-            }
-            return res.json(user);
-        })
-        .catch(err => {
-            return errHandler(err, res);
-        });
-
+    try {
+        const user = await db.users.findByPk(id, {attributes: ["name", "email", "createdAt"]});
+        if (!user) {
+            return res.status(404).json({message: "not found"});
+        }
+        return res.json(user);
+    } catch {
+        return errHandler(err, res);
+    }
 };
-const update = (req, res) => {
+const update = async (req, res) => {
     const body = req.body;
 
     const schema = Joi.object().keys({
@@ -90,22 +88,17 @@ const update = (req, res) => {
     if (!valid) {
         return res.status(400).json({message: "Bad request", error: error})
     }
-    db.users.update(body,
-        {
-            where: {
-                id: req.params.id
-            }
-        })
-        .then(() => {
-            db.users.findByPk(req.params.id, {attributes: ["name", "email", "createdAt"]})
-                .then(user => {
-                    if (!user) {
-                        return res.status(404).json({message: "not found"});
-                    }
-                    return res.json(user);
-                })
-        })
-        .catch(err => errHandler(err, res))
+    try {
+        await db.users.update(body, {where: {id: req.params.id}});
+
+        const user = await db.users.findByPk(req.params.id, {attributes: ["name", "email", "createdAt"]})
+        if (!user) {
+            return res.status(404).json({message: "not found"});
+        }
+        return res.json(user);
+    } catch (e) {
+        return errHandler(e, res)
+    }
 
 };
 
