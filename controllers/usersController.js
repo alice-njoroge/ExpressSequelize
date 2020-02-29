@@ -27,9 +27,21 @@ const create = (req, res) => {
     });
 
 };
+const show = (req, res) => {
+   const id = req.params.id;
+    db.users.findByPk(id,{attributes: ["name", "email", "createdAt"] })
+        .then(user => {
+            return res.json(user);
+        })
+        .catch(err => {
+            return errHandler(err, res);
+        });
+
+};
 
 
 module.exports = {
     index: index,
-    create: create
+    create: create,
+    show:show
 };
