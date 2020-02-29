@@ -101,10 +101,28 @@ const update = async (req, res) => {
     }
 
 };
+const destroy = async (req, res) => {
+    const id = req.params.id;
+    try {
+       const user =  await db.users.findByPk(id);
+       if (!user){
+           return res.status(404).json({message:"not found"})
+       }
 
+
+      await  db.users.destroy({
+            where: {id: id}
+        });
+        return  res.json({message:"deleted successfully"})
+    } catch (e) {
+        return errHandler(e, res);
+    }
+
+};
 module.exports = {
     index: index,
     create: create,
     show: show,
-    update: update
+    update: update,
+    destroy: destroy
 };
