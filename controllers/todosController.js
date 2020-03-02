@@ -30,6 +30,9 @@ const show = (req, res) => {
             if (!task) {
                 return res.status(404).json({message: "task not available"});
             }
+            if(task.user_id !== req.user_id){
+                return  res.status(403).json({message:"forbidden"});
+            }
             return res.json(task);
 
         })
