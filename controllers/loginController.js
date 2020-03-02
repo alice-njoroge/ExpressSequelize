@@ -1,5 +1,3 @@
-const jwt = require('jsonwebtoken');
-const config = require(__dirname + '/../config/config.json');
 const db = require("../models");
 const bcrypt = require('bcrypt');
 const JWT= require("../helpers/jWTtokens");
@@ -12,7 +10,6 @@ const login = async (req, res, next) => {
             return res.status(401).json({message: "User not found!"})
         } else {
             bcrypt.compare(password, user.password, (err, result) => {
-                console.log(err, result);
                 if (!result) {
                     return res.status(401).json({message: "wrong credentials"})
                 }
