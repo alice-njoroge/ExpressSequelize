@@ -5,6 +5,7 @@ const passwordComplexity = require('joi-password-complexity');
 const JWT = require('../helpers/jWTtokens');
 const nodemailer = require("nodemailer");
 const config = require(__dirname + '/../config/config.json');
+const crypto = require('crypto');
 
 
 const errHandler = (err, res) => {
@@ -135,10 +136,19 @@ const profile = async (req, res) => {
         return errHandler(e, res);
     }
 };
+
 const resetPassword = async (req, res) => {
     let mail = req.body.email;
     if (!mail) {
         return res.status(400).json({message: "the email must be provided"})
+    }
+    const mailExists = await db.users.findOne({
+        where: {
+            email: mail
+        }
+    });
+    if (!mailExists) {
+        return res.status(404).json({message: "a user with such a mail seems to be non existent"})
     }
     const transporter = nodemailer.createTransport({
         host: "smtp.mailtrap.io",
@@ -148,12 +158,16 @@ const resetPassword = async (req, res) => {
             pass: config.email.pass
         }
     });
+    let resetToken;
+    while (!resetToken) {
+        restToken = crypto.randomBytes(52).toString('hex');
+    }
 
     transporter.sendMail({
         from: '"Fred Foo 👻" <foo@example.com>', // sender address
         to: mail, // list of receivers
         subject: "Hello ✔", // Subject line
-        text: "Hello world?", // plain text body
+        text: "Please click the ", // plain text body
         html: "<b>Hello world?</b>" // html body
     }).then(info => {
         console.log("Message sent: %s", info.messageId);
