@@ -8,8 +8,8 @@ const auth = (req, res, next) => {
         let token = authHeader.replace("Bearer ", "");
         try {
             const data = jwt.verify(token,config.secret_key);
+            req.user_id = data.id;
             next();
-
         }
         catch (err){
             return  res.status(500).json({message:err.message});
