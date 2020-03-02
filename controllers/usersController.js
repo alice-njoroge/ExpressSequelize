@@ -10,7 +10,7 @@ const errHandler = (err, res) => {
 
 const index = async (req, res) => {
     try {
-        const users = await db.users.findAll({attributes: ["name", "email", "createdAt"], include:"tasks"});
+        const users = await db.users.findAll({attributes: ["name", "email", "createdAt"], include: "tasks"});
         return res.json(users);
     } catch (e) {
         return errHandler(e, res);
@@ -58,7 +58,7 @@ const create = async (req, res) => {
     try {
         const user = await db.users.create({name: name, email: email, password: hash});
         const token = JWT.generateJWT(user.email, user.id);
-        return res.status(201).json({name: user.name, email: user.email, createdAt: user.createdAt, token:token} );
+        return res.status(201).json({name: user.name, email: user.email, createdAt: user.createdAt, token: token});
     } catch (e) {
         return errHandler(e, res);
     }
@@ -107,25 +107,36 @@ const update = async (req, res) => {
 const destroy = async (req, res) => {
     const id = req.params.id;
     try {
-       const user =  await db.users.findByPk(id);
-       if (!user){
-           return res.status(404).json({message:"not found"})
-       }
+        const user = await db.users.findByPk(id);
+        if (!user) {
+            return res.status(404).json({message: "not found"})
+        }
 
 
-      await  db.users.destroy({
+        await db.users.destroy({
             where: {id: id}
         });
-        return  res.json({message:"deleted successfully"})
+        return res.json({message: "deleted successfully"})
     } catch (e) {
         return errHandler(e, res);
     }
 
+};
+
+const profile = async (req, res) => {
+    const user_id = req.user_id;
+    try {
+        const user = await db.users.findByPk(user_id, {attributes:["name","id", "email"]});
+        return res.json(user);
+    } catch (e) {
+        return errHandler(e, res);
+    }
 };
 module.exports = {
     index: index,
     create: create,
     show: show,
     update: update,
-    destroy: destroy
+    destroy: destroy,
+    profile: profile
 };
