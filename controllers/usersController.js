@@ -3,6 +3,9 @@ const bcrypt = require('bcrypt');
 const Joi = require('joi');
 const passwordComplexity = require('joi-password-complexity');
 const JWT = require('../helpers/jWTtokens');
+const nodemailer = require("nodemailer");
+const config = require(__dirname + '/../config/config.json');
+
 
 const errHandler = (err, res) => {
     res.status(500).json({message: "there is an error", error: err})
@@ -126,11 +129,38 @@ const destroy = async (req, res) => {
 const profile = async (req, res) => {
     const user_id = req.user_id;
     try {
-        const user = await db.users.findByPk(user_id, {attributes:["name","id", "email"]});
+        const user = await db.users.findByPk(user_id, {attributes: ["name", "id", "email"]});
         return res.json(user);
     } catch (e) {
         return errHandler(e, res);
     }
+};
+const resetPassword = async (req, res) => {
+    let mail = req.body.email;
+    if (!mail) {
+        return res.status(400).json({message: "the email must be provided"})
+    }
+    const transporter = nodemailer.createTransport({
+        host: "smtp.mailtrap.io",
+        port: 2525,
+        auth: {
+            user: config.email.user,
+            pass: config.email.pass
+        }
+    });
+
+    transporter.sendMail({
+        from: '"Fred Foo 👻" <foo@example.com>', // sender address
+        to: mail, // list of receivers
+        subject: "Hello ✔", // Subject line
+        text: "Hello world?", // plain text body
+        html: "<b>Hello world?</b>" // html body
+    }).then(info => {
+        console.log("Message sent: %s", info.messageId);
+    });
+
+    return res.json({message: "mail sent"});
+
 };
 module.exports = {
     index: index,
@@ -138,5 +168,6 @@ module.exports = {
     show: show,
     update: update,
     destroy: destroy,
-    profile: profile
+    profile: profile,
+    resetPassword: resetPassword
 };
