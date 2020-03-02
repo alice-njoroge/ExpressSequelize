@@ -2,6 +2,7 @@ const db = require("../models");
 const bcrypt = require('bcrypt');
 const Joi = require('joi');
 const passwordComplexity = require('joi-password-complexity');
+const JWT = require('../helpers/jWTtokens');
 
 const errHandler = (err, res) => {
     res.status(500).json({message: "there is an error", error: err})
@@ -19,6 +20,7 @@ const index = async (req, res) => {
 
 const create = async (req, res) => {
     const body = req.body;
+
     const name = body.name;
     const email = body.email;
     const password = body.password;
@@ -55,7 +57,8 @@ const create = async (req, res) => {
 
     try {
         const user = await db.users.create({name: name, email: email, password: hash});
-        return res.status(201).json({name: user.name, email: user.email, createdAt: user.createdAt});
+        const token = JWT.generateJWT(user.email, user.id);
+        return res.status(201).json({name: user.name, email: user.email, createdAt: user.createdAt, token:token} );
     } catch (e) {
         return errHandler(e, res);
     }
@@ -91,7 +94,7 @@ const update = async (req, res) => {
     try {
         await db.users.update(body, {where: {id: req.params.id}});
 
-        const user = await db.users.findByPk(req.params.id, {attributes: ["name", "email", "createdAt"]})
+        const user = await db.users.findByPk(req.params.id, {attributes: ["name", "email", "createdAt"]});
         if (!user) {
             return res.status(404).json({message: "not found"});
         }
