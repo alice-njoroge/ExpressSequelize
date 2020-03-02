@@ -1,7 +1,11 @@
 const db = require("../models");
 
 const index = (req, res) => {
-    db.todos.findAll({include:"user"}).then((todos) => {
+    db.todos.findAll({
+        where: {
+            user_id: req.user_id
+        }
+    }, {include: "user"}).then((todos) => {
         return res.json(todos);
     });
 };
@@ -9,7 +13,7 @@ const index = (req, res) => {
 const create = (req, res) => {
     const title = req.body.title;
     const user_id = req.body.user_id;
-    db.todos.create({title: title, completed: false, user_id:user_id })
+    db.todos.create({title: title, completed: false, user_id: user_id})
         .then((todo) => {
             return res.status(201).json(todo);
         })
