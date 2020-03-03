@@ -6,6 +6,7 @@ const JWT = require('../helpers/jWTtokens');
 const nodemailer = require("nodemailer");
 const config = require(__dirname + '/../config/config.json');
 const crypto = require('crypto');
+const resetPassHtml = require('../emails/resetPass');
 
 
 const errHandler = (err, res) => {
@@ -158,6 +159,7 @@ const resetPassword = async (req, res) => {
             user: config.email.user,
             pass: config.email.pass
         }
+
     });
 
     transporter.sendMail({
@@ -165,7 +167,9 @@ const resetPassword = async (req, res) => {
         to: mail, // list of receivers
         subject: "Hello ✔", // Subject line
         text: "Please click the link below to change your password ", // plain text body
-        html: "<b>Please click the link below to change your password</b>" // html body
+        html: resetPassHtml()
+
+
     }).then(info => {
         console.log("Message sent: %s", info.messageId);
     });
