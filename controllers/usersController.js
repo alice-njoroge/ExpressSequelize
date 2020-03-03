@@ -151,30 +151,37 @@ const resetPassword = async (req, res) => {
     if (!mailExists) {
         return res.status(404).json({message: "a user with such a mail seems to be non existent"})
     }
-    console.log( await generateToken());
-    const transporter = nodemailer.createTransport({
-        host: "smtp.mailtrap.io",
-        port: 2525,
-        auth: {
-            user: config.email.user,
-            pass: config.email.pass
-        }
+    const token =  await generateToken();
+    try{
+        await db.passwordResets.create({email:mail,tokenHash:token })
+        const transporter = nodemailer.createTransport({
+            host: "smtp.mailtrap.io",
+            port: 2525,
+            auth: {
+                user: config.email.user,
+                pass: config.email.pass
+            }
 
-    });
+        });
 
-    transporter.sendMail({
-        from: '"Fred Foo 👻" <foo@example.com>', // sender address
-        to: mail, // list of receivers
-        subject: "Hello ✔", // Subject line
-        text: "Please click the link below to change your password ", // plain text body
-        html: resetPassHtml()
+        transporter.sendMail({
+            from: '"Fred Foo 👻" <foo@example.com>', // sender address
+            to: mail, // list of receivers
+            subject: "Hello ✔", // Subject line
+            text: "Please click the link below to change your password ", // plain text body
+            html: resetPassHtml()
 
 
-    }).then(info => {
-        console.log("Message sent: %s", info.messageId);
-    });
+        }).then(info => {
+            console.log("Message sent: %s", info.messageId);
+        });
 
-    return res.json({message: "mail sent"});
+        return res.json({message: "mail sent"});
+
+
+    }catch (e) {
+        return errHandler(e, res);
+    }
 
 };
 
