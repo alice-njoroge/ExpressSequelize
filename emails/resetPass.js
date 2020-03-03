@@ -1,4 +1,4 @@
-module.exports = () => {
+module.exports = (token) => {
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,7 +10,7 @@ module.exports = () => {
 <body>
 <h4>Greetings from Lex </h4>
 <p> please click the link below to reset your password </p>
-<a href=""> Click me :) </a>
+<a href="http://127.0.0.1:3031/users/reset_password/${token}"> Click me :) </a>
 </body>
 </html>`
 };

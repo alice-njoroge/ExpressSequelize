@@ -169,7 +169,7 @@ const resetPassword = async (req, res) => {
             to: mail, // list of receivers
             subject: "Hello ✔", // Subject line
             text: "Please click the link below to change your password ", // plain text body
-            html: resetPassHtml()
+            html: resetPassHtml(token)
 
 
         }).then(info => {

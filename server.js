@@ -7,9 +7,11 @@ const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
 const options = require('./swaggerOptions');
 const port = process.env.PORT || 3031;
+const morgan = require('morgan');
 
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
+app.use(morgan('tiny'));
 
 app.use("/todos", todosRoutes);
 app.use("/users", usersRoutes);
