@@ -8,9 +8,17 @@ const swaggerUi = require("swagger-ui-express");
 const options = require('./swaggerOptions');
 const port = process.env.PORT || 3031;
 const morgan = require('morgan');
+const fs = require('fs');
+const path = require('path');
 
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
+
+const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
+
+// setup the logger
+app.use(morgan('combined', { stream: accessLogStream }));
+
 app.use(morgan(':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length]'));
 
 app.use("/todos", todosRoutes);
