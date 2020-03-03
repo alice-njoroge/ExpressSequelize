@@ -5,7 +5,7 @@ const JWT= require("../helpers/jWTtokens");
 const login = async (req, res, next) => {
     const {email, password} = req.body;
     if (email && password) {
-        const user = await db.users.findOne({where: {email: email}});
+        const user = await db.users.findOne( {where: {email: email} });
         if (!user) {
             return res.status(401).json({message: "User not found!"})
         } else {
@@ -14,7 +14,8 @@ const login = async (req, res, next) => {
                     return res.status(401).json({message: "wrong credentials"})
                 }
                 const token = JWT.generateJWT(user.email, user.id);
-                return res.status(200).json({message: "welcome", token:token, user:user});
+                delete user.password;
+                return res.status(200).json({message: "welcome", token:token, user:user });
 
             })
         }
