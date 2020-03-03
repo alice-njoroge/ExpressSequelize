@@ -11,7 +11,7 @@ const morgan = require('morgan');
 
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
-app.use(morgan('tiny'));
+app.use(morgan(':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length]'));
 
 app.use("/todos", todosRoutes);
 app.use("/users", usersRoutes);
