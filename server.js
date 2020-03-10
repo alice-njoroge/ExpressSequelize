@@ -10,14 +10,20 @@ const port = process.env.PORT || 3031;
 const morgan = require('morgan');
 const fs = require('fs');
 const path = require('path');
+const cors = require('cors');
 
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
+/* app.use(cors({
+    origin: 'http://127.0.0.1:3000'
+})); */
+app.use(cors());
 
 const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
 
 // setup the logger
 app.use(morgan('combined', { stream: accessLogStream }));
+
 
 app.use(morgan(':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length]'));
 

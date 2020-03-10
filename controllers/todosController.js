@@ -4,8 +4,9 @@ const index = (req, res) => {
     db.todos.findAll({
         where: {
             user_id: req.user_id
-        }
-    }, {include: "user"}).then((todos) => {
+        },
+        include: "user"
+    }).then((todos) => {
         return res.json(todos);
     });
 };
@@ -30,8 +31,8 @@ const show = (req, res) => {
             if (!task) {
                 return res.status(404).json({message: "task not available"});
             }
-            if(task.user_id !== req.user_id){
-                return  res.status(403).json({message:"forbidden"});
+            if (task.user_id !== req.user_id) {
+                return res.status(403).json({message: "forbidden"});
             }
             return res.json(task);
 
